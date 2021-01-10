@@ -1,8 +1,14 @@
 #!/usr/bin/env node
 import program from 'commander'
 import path from 'path';
-import inquirer from 'inquirer';
-const { thumbnail, directoryExists, readdir, mkdir, rm } = require('./lib')
+import {
+  thumbnail,
+  directoryExists,
+  filterImageFiles,
+  readdir,
+  mkdir,
+  rm, confirmThumbnails
+} from './lib'
 
 program
   .version('1.0.0')
@@ -30,17 +36,13 @@ const main = async () => {
 
     await mkdir(destPath);
 
-    const imagesAll = await readdir(srcPath);
-    const imagesCount = imagesAll.length;
+    const allFiles = await readdir(srcPath);
+    const imageFiles = filterImageFiles(allFiles);
 
-    const confirmation = await inquirer.prompt({
-      type: 'confirm',
-      name: 'confirm',
-      message: `You are going to create ${imagesCount} thumbnails from [${imagesAll}]`
-    });
+    const confirmation = await confirmThumbnails(imageFiles);
 
-    if (confirmation.confirm) {
-      for (let image of imagesAll) {
+    if (confirmation) {
+      for (let image of imageFiles) {
         const src = path.join(srcPath, image);
         const dest = path.join(destPath, image);
         console.log(`Creating thumbnail at: ${dest}`);

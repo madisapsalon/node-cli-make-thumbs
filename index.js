@@ -42,8 +42,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var commander_1 = __importDefault(require("commander"));
 var path_1 = __importDefault(require("path"));
-var inquirer_1 = __importDefault(require("inquirer"));
-var _a = require('./lib'), thumbnail = _a.thumbnail, directoryExists = _a.directoryExists, readdir = _a.readdir, mkdir = _a.mkdir, rm = _a.rm;
+var lib_1 = require("./lib");
 commander_1.default
     .version('1.0.0')
     .name('make-thumbs')
@@ -52,7 +51,7 @@ commander_1.default
     .option('-d, --destination [folder]', 'Directory to be created for thumbnails', 'thumbnails')
     .parse(process.argv);
 var main = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var cwd, source, destination, srcPath, destPath, imagesAll, imagesCount, confirmation, _i, imagesAll_1, image, src, dest, error_1;
+    var cwd, source, destination, srcPath, destPath, allFiles, imageFiles, confirmation, _i, imageFiles_1, image, src, dest, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -61,35 +60,31 @@ var main = function () { return __awaiter(void 0, void 0, void 0, function () {
                 source = commander_1.default.source, destination = commander_1.default.destination;
                 srcPath = path_1.default.join(cwd, source);
                 destPath = path_1.default.join(cwd, destination);
-                if (!directoryExists(destPath)) return [3 /*break*/, 2];
-                return [4 /*yield*/, rm(destPath)];
+                if (!lib_1.directoryExists(destPath)) return [3 /*break*/, 2];
+                return [4 /*yield*/, lib_1.rm(destPath)];
             case 1:
                 _a.sent();
                 _a.label = 2;
-            case 2: return [4 /*yield*/, mkdir(destPath)];
+            case 2: return [4 /*yield*/, lib_1.mkdir(destPath)];
             case 3:
                 _a.sent();
-                return [4 /*yield*/, readdir(srcPath)];
+                return [4 /*yield*/, lib_1.readdir(srcPath)];
             case 4:
-                imagesAll = _a.sent();
-                imagesCount = imagesAll.length;
-                return [4 /*yield*/, inquirer_1.default.prompt({
-                        type: 'confirm',
-                        name: 'confirm',
-                        message: "You are going to create " + imagesCount + " thumbnails from [" + imagesAll + "]"
-                    })];
+                allFiles = _a.sent();
+                imageFiles = lib_1.filterImageFiles(allFiles);
+                return [4 /*yield*/, lib_1.confirmThumbnails(imageFiles)];
             case 5:
                 confirmation = _a.sent();
-                if (!confirmation.confirm) return [3 /*break*/, 10];
-                _i = 0, imagesAll_1 = imagesAll;
+                if (!confirmation) return [3 /*break*/, 10];
+                _i = 0, imageFiles_1 = imageFiles;
                 _a.label = 6;
             case 6:
-                if (!(_i < imagesAll_1.length)) return [3 /*break*/, 9];
-                image = imagesAll_1[_i];
+                if (!(_i < imageFiles_1.length)) return [3 /*break*/, 9];
+                image = imageFiles_1[_i];
                 src = path_1.default.join(srcPath, image);
                 dest = path_1.default.join(destPath, image);
                 console.log("Creating thumbnail at: " + dest);
-                return [4 /*yield*/, thumbnail(src, dest)];
+                return [4 /*yield*/, lib_1.thumbnail(src, dest)];
             case 7:
                 _a.sent();
                 _a.label = 8;
